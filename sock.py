@@ -1,19 +1,18 @@
 import socket #Модуль для работы с сокетами
 from datetime import datetime #Используется для расчета времени работы рограммы
-import csv #Для работы с форматом .csv
+import csv #Используется для работы с форматом .csv
 
 start = datetime.now()
 
 #Функция для сканирования портов
 def scan_port(ip, port):
-    #Создание нового сокета
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)#AF - AddressFamily, SOCK_STREAM - socket type - дефолтные значения
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #Создание нового сокета
     sock.settimeout(0.5)
     try:
-        connect = sock.connect((ip, port))#Подключиться к <ip> по <port>
-        print('Port:', port, 'is open.')#Для вывода сообщения на экран
+        connect = sock.connect((ip, port)) #Подключиться к <ip> по <port>
+        print('Port:', port, 'is open.') #Для вывода сообщения на экран
         return port #Возвращаем <port>, для последующей записи в файл
-        connect.close()#Закрываем соединение
+        connect.close() #Закрываем соединение
     except:
         pass #Чтобы программа не "вылетала" при достижении таймаута в settimeout()
 
@@ -22,13 +21,8 @@ file_name = input('Введите имя файла (например, text.csv)
 
 final = [] #Пустой список, в который будут записаны ip-адреса и открытые порты 
 
-#open(file_name) - открытие файла для работы
-#В отличие от open(), где нужно закрыть файл методом close(),
-#оператор with закрывает файл для вас, не сообщая об этом.
+#Открытие файла для работы
 with open(file_name) as in_file:
-    #Используется, когда файл используется в качестве итератора, обычно в цикле,
-    # метод next () вызывается повторно, пока не достигнет EOF.
-    #Обычно используется с другими методами, например, для чтения
     next(in_file)
     reader = csv.reader(in_file, delimiter=';') #Перебор по строкам в файле; указываем, что разделитель ';'
 
@@ -45,23 +39,23 @@ with open(file_name) as in_file:
             p = scan_port(ip, i)
             if p:
                 open_ports.append(p)
+                
             #Для вывода сообщения о закрытых портах
             #else:
-                #print('Port:', i, 'is close.')
+                #print('Port:', i, 'is closed.')
 
-        #Через функцию map() преобразуем все элементы в open_ports к типу str
-        #и добавляем в final ip и открытые порты
+        #Через функцию map() преобразуем все элементы в open_ports к типу str и добавляем в final ip и открытые порты
         final.append([ip,','.join(map(str, open_ports))])
 
 #Создаем файл connections.csv и открываем его на запись
 with open('connections.csv', 'w') as out_file:
-    writer = csv.writer(out_file, delimiter=';', lineterminator='\r')# \r - перевод каретки в начало текущей строки
-    writer.writerow(['ip-адрес', 'порты'])#первая строка в файле - одписи столбцов
+    writer = csv.writer(out_file, delimiter=';', lineterminator='\r')
+    writer.writerow(['ip-адрес', 'порты'])#первая строка в файле - подписи столбцов
     for i in final:
-        writer.writerow(i)
+        writer.writerow(i) #построчно записываем данные из final в connections.csv
     print('Данные были сохранены в connections.csv.')
 
 ends = datetime.now()
-print('Time: {}'.format(ends-start))#Выводим время, за которое выполнялась рограмма
+print('Time: {}'.format(ends-start))#Выводим время, за которое выполнялась программа
 
 input('Нажмите любую клавишу для выхода...')
